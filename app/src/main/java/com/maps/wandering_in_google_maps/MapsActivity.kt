@@ -2,6 +2,8 @@ package com.maps.wandering_in_google_maps
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.core.content.res.ResourcesCompat.ThemeCompat
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -14,7 +16,7 @@ import com.maps.wandering_in_google_maps.databinding.ActivityMapsBinding
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var mMap: GoogleMap
+    private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +41,41 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        map = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val latitude = 41.36081444759776
+        val longitude = 69.28971892265983
+        val zoomLevel = 15f
+        val myHomeLatLng = LatLng(latitude, longitude)
+
+        map.addMarker(MarkerOptions().position(myHomeLatLng))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(myHomeLatLng, zoomLevel))
+        setMapLongClick()
     }
+
+    private fun setMapLongClick() {
+        map.setOnMapLongClickListener { latLng ->
+            map.addMarker(
+                MarkerOptions().position(latLng)
+            )
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.map_options, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.normal_map -> map.mapType = GoogleMap.MAP_TYPE_NORMAL
+            R.id.hybrid_map -> map.mapType = GoogleMap.MAP_TYPE_HYBRID
+            R.id.satellite_map -> map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            R.id.terrain_map -> map.mapType =  GoogleMap.MAP_TYPE_TERRAIN
+            else -> super.onOptionsItemSelected(item)
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
 }
