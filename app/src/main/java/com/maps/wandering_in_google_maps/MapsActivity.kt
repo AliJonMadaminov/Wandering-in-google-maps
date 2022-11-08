@@ -13,6 +13,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.maps.wandering_in_google_maps.databinding.ActivityMapsBinding
+import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -55,8 +56,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setMapLongClick() {
         map.setOnMapLongClickListener { latLng ->
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                latLng.latitude,
+                latLng.longitude
+            )
+
             map.addMarker(
-                MarkerOptions().position(latLng)
+                MarkerOptions()
+                    .title(getString(R.string.dropped_pin))
+                    .snippet(snippet)
+                    .position(latLng)
             )
         }
     }
@@ -67,11 +78,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.normal_map -> map.mapType = GoogleMap.MAP_TYPE_NORMAL
             R.id.hybrid_map -> map.mapType = GoogleMap.MAP_TYPE_HYBRID
             R.id.satellite_map -> map.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            R.id.terrain_map -> map.mapType =  GoogleMap.MAP_TYPE_TERRAIN
+            R.id.terrain_map -> map.mapType = GoogleMap.MAP_TYPE_TERRAIN
             else -> super.onOptionsItemSelected(item)
         }
 
