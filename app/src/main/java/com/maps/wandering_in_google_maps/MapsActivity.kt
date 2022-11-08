@@ -1,17 +1,20 @@
 package com.maps.wandering_in_google_maps
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -23,6 +26,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private val REQUEST_LOCATION_PERMISSION = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +62,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .image(BitmapDescriptorFactory.fromResource(R.drawable.android))
             .position(restaurantLatLng, overlaySize)
 
+        enableMyLocation()
         map.addGroundOverlay(androidOverlay)
         map.addMarker(MarkerOptions().position(restaurantLatLng))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurantLatLng, zoomLevel))
@@ -98,7 +103,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setMapStyle(map: GoogleMap) {
         try {
-            val success =map.setMapStyle(
+            val success = map.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     this,
                     R.raw.map_style
@@ -109,8 +114,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.e("MapsActivity: MapStyle", "Map style parsing failed")
             }
 
-        }catch (e:java.lang.Exception) {
+        } catch (e: java.lang.Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun enableMyLocation() {
+        if (isPermissionGranted()) {
+            map.isMyLocationEnabled = true
+        }
+        else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION
+            )
+        }
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Check if location permissions are granted and if so enable the
+        // location data layer.
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                enableMyLocation()
+            }
         }
     }
 
@@ -130,5 +169,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         return super.onOptionsItemSelected(item)
     }
+
 
 }
