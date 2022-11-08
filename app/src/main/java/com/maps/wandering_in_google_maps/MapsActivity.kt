@@ -2,6 +2,7 @@ package com.maps.wandering_in_google_maps
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.core.content.res.ResourcesCompat.ThemeCompat
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.maps.wandering_in_google_maps.databinding.ActivityMapsBinding
 import java.util.*
@@ -53,6 +55,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(myHomeLatLng, zoomLevel))
         setMapLongClick(map)
         setPoiClick(map)
+        setMapStyle(map)
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -81,6 +84,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .position(poi.latLng)
             )
             poiMarker?.showInfoWindow()
+        }
+    }
+
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            val success =map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this,
+                    R.raw.map_style
+                )
+            )
+
+            if (!success) {
+                Log.e("MapsActivity: MapStyle", "Map style parsing failed")
+            }
+
+        }catch (e:java.lang.Exception) {
+            e.printStackTrace()
         }
     }
 
